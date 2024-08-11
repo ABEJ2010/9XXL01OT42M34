@@ -235,9 +235,9 @@ Title.Font = Enum.Font.SourceSans
 Title.TextSize = 18
 if os.date("*t", os.time()).month == 4 then
 	-- This is a reminder how EdgeIY edgy was
-	Title.Text = "Nexito script v"  .. currentVersion
+	Title.Text = "BroWth v"  .. currentVersion
 else
-	Title.Text = "Nexito script v"  .. currentVersion
+	Title.Text = "BroWth v"  .. currentVersion
 end
 do
 	local emoji = ({
