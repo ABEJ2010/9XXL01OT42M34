@@ -1,0 +1,193 @@
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wizard"))()
+local PhantomForcesWindow = Library:NewWindow("|custom|")
+local TSB = PhantomForcesWindow:NewSection("OPTIONS")
+
+local tumama = Instance.new("Part")
+tumama.Transparency = 1
+tumama.Anchored = true
+tumama.Rotation = Vector3.new(0, -17.5, 0)
+tumama.Size = Vector3.new(200, 10, 200)
+tumama.Position = Vector3.new(-3147483648, 2147483642, 3147483648) 
+tumama.Parent = game.Workspace
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+
+local function createPart(transparency, yPosition, thickness)
+	local part = Instance.new("Part")
+	part.Transparency = transparency
+	part.Anchored = true
+	part.Rotation = Vector3.new(0, -17.5, 0)
+	part.Size = Vector3.new(2048, thickness, 2048)
+	part.Position = Vector3.new(190.414352, yPosition, 3.7323451)
+	part.Parent = game.Workspace
+	return part
+end
+
+local platformParts = {
+	createPart(0.7, -600.5, 200), 
+	createPart(1, -506, 10)  
+}
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+RunService.RenderStepped:Connect(function()
+	local charPosition = character.HumanoidRootPart.Position
+
+	for _, part in ipairs(platformParts) do
+		local fixedHeight = part.Position.Y
+		part.Position = Vector3.new(charPosition.X, fixedHeight, charPosition.Z)
+	end
+end)
+
+player.CharacterAdded:Connect(function(newCharacter)
+	character = newCharacter
+end)
+
+TSB:CreateButton("REJOIN", function()
+	local defaultTime = 1
+
+	local function formatTime(totalSeconds)
+		local hours = math.floor(totalSeconds / 3600)
+		local minutes = math.floor((totalSeconds % 3600) / 60)
+		local seconds = math.floor(totalSeconds % 60)
+		local milliseconds = math.floor((totalSeconds - math.floor(totalSeconds)) * 100)
+		return string.format("%d:%02d:%02d.%02d", hours, minutes, seconds, milliseconds)
+	end
+
+	local function toggleRejoin()
+		local startTime = os.clock()
+		local targetTime = startTime + defaultTime
+		local running = true
+
+		local connection
+		connection = game:GetService("RunService").Heartbeat:Connect(function()
+			local timeLeft = math.max(0, targetTime - os.clock())
+
+			if timeLeft <= 0 then
+				running = false
+				connection:Disconnect()
+				game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+			end
+		end)
+	end
+
+	toggleRejoin()
+end)
+
+TSB:CreateButton("SERVER HOP", function()
+	local Http = game:GetService("HttpService")
+	local TPS = game:GetService("TeleportService")
+	local Api = "https://games.roblox.com/v1/games/"
+
+	local _place = game.PlaceId
+	local _servers = Api.._place.."/servers/Public?sortOrder=Asc&limit=100"
+	function ListServers(cursor)
+		local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
+		return Http:JSONDecode(Raw)
+	end
+
+	local Server, Next; repeat
+		local Servers = ListServers(Next)
+		Server = Servers.data[1]
+		Next = Servers.nextPageCursor
+	until Server
+
+	TPS:TeleportToPlaceInstance(_place,Server.id,game:GetService('Players').LocalPlayer)
+end)
+
+TSB:CreateButton("PHANTASM", function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/ATrainz/Phantasm/refs/heads/main/Games/TSB.lua"))()
+end)
+
+local TSB = PhantomForcesWindow:NewSection("LOCATIONS")
+
+TSB:CreateButton("CENTRO", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(150, 447, 29)
+end)
+
+TSB:CreateButton("MOUNTAIN 1", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(-20, 653, -389)
+end)
+
+TSB:CreateButton("MOUNTAIN 2", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(328, 671, 459)
+end)
+
+TSB:CreateButton("ZONE", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(-165, 439, -423)
+end)
+
+TSB:CreateButton("PLATFORM", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(1069, 406, 23001)
+end)
+
+TSB:CreateButton("DEATH COUNTER", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(-64, 38, 20339)
+end)
+
+TSB:CreateButton("BLACK BOX", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(-78, 84, 20353)
+end)
+
+TSB:CreateButton("ATOMIC BASE", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(1069, 144, 23001)
+end)
+
+TSB:CreateButton("JAIL", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(23, 595, -454)
+end)
+
+TSB:CreateButton("SMALL JAIL", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(20, 439, -459)
+end)
+
+TSB:CreateButton("DARKNESS", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(3, 899999989760, -17)
+end)
+
+TSB:CreateButton("VOID", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(0,  -497.5, 0)
+	local player = game.Players.LocalPlayer
+	local camera = game.Workspace.CurrentCamera
+
+	local originalCF = camera.CFrame
+
+	local function ResetCameraOnce()
+		camera.CameraType = Enum.CameraType.Custom
+		camera.CFrame = originalCF
+	end
+
+	ResetCameraOnce()
+end)
+
+TSB:CreateButton("SKY", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(150, 1850, 29)
+end)
+
+TSB:CreateButton("GLITCH SKY", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(6000000, 6000000, 0)
+end)
+
+TSB:CreateButton("WEAKEST DUMMY", function()
+	local player = game.Players.LocalPlayer
+	local character = player.Character or player.CharacterAdded:Wait()
+
+	local model = game.Workspace.Live:FindFirstChild("Weakest Dummy")
+
+	local function teleportToModel()
+		if model and model:IsA("Model") and model.PrimaryPart then
+			character:SetPrimaryPartCFrame(model.PrimaryPart.CFrame)
+		else
+			warn("El modelo no fue encontrado o no tiene una PrimaryPart asignada.")
+		end
+	end
+
+	teleportToModel()
+end)
+
+TSB:CreateButton("PUNISH", function()
+	local rootPart = game.Players.LocalPlayer.Character.HumanoidRootPart rootPart.CFrame = CFrame.new(0, 2147483600, 0)
+end)
