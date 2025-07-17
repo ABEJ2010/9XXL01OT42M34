@@ -9,77 +9,68 @@ local insert = table.insert
 local Instance_new = Instance.new
 
 function RMod:Defaultify(Default, Table)
-    for i, v in next, Default do
-        if type(v) == "table" and type(Table[i]) == "table" then
-            self:Defaultify(v, Table[i])
-        else
-            Table[i] = Table[i] == nil and v or Table[i]
-        end
-    end
-    return Table
+	for i, v in next, Default do
+		if type(v) == "table" and type(Table[i]) == "table" then
+			self:Defaultify(v, Table[i])
+		else
+			Table[i] = Table[i] == nil and v or Table[i]
+		end
+	end
+	return Table
 end
 
 function RMod:NoRegex(Str)
-    for _, Char in next, ("$%^&*()[]-+?."):split("") do
-        Str = Str:gsub("%" .. Char, "%%" .. (Char == "%" and "%" or "") .. Char)
-    end
-    return Str
+	for _, Char in next, ("$%^&*()[]-+?."):split("") do
+		Str = Str:gsub("%" .. Char, "%%" .. (Char == "%" and "%" or "") .. Char)
+	end
+	return Str
 end
 
 function RMod:GetTabsByName(Name, SearchOptions) --! Returns a table like: {Instance = Tab, Rename = function, Delete = function, Hide = function, Show = function}
-    --[[
-    * SearchOptions (table):
-    ^ case_insensitive: If true, It will ignore capital letters, everything will be searched for in lowercase
-    ^ latin_only: If true, It will ONLY look for letters and numbers, for example, Hello World, Will be converted into HelloWorld, HelloīWorld will be converted into HelloWorld
-    ^ visible_only: If true, Will not include hidden tabs (tabs hidden with Tab:Hide()),
-    ^ search_regex: If true, will search for tab names WITH REGEX, For example:
-    ^ RMod:GetTabsByName("Hello%s*World", {search_regex=true}) will get the tabs: HelloWorld, Hello World, Hello  World, Hello   World and so on, if false then it will search for raw names.
-    ^ find_only: If false or nil, Will require the tab's name to be EXACTLY the same as Name, Otherwise only a chunk of it.
-    ]]
-    SearchOptions = SearchOptions or {}
+	SearchOptions = SearchOptions or {}
 
-    local Tabs = {}
-    local ModdedTabs = {}
+	local Tabs = {}
+	local ModdedTabs = {}
 
-    Name = SearchOptions.case_insensitive and Name:lower() or Name
+	Name = SearchOptions.case_insensitive and Name:lower() or Name
 
-    for _, Tab in next, TabList:GetChildren() do
-        if Tab:IsA("Frame") and Tab.Name ~= "Rayfield Settings" and Tab.Name ~= "Template" then
-            if SearchOptions.visible_only and not Tab.Visible then continue end
+	for _, Tab in next, TabList:GetChildren() do
+		if Tab:IsA("Frame") and Tab.Name ~= "Rayfield Settings" and Tab.Name ~= "Template" then
+			if SearchOptions.visible_only and not Tab.Visible then continue end
 
-            local TabName = Tab.Name
-            local Pattern = SearchOptions.search_regex and Name or RMod:NoRegex(Name)
+			local TabName = Tab.Name
+			local Pattern = SearchOptions.search_regex and Name or RMod:NoRegex(Name)
 
-            TabName = SearchOptions.latin_only and TabName:gsub("[^0-9A-Za-z]", "") or TabName
-            TabName = SearchOptions.case_insensitive and TabName:lower() or TabName
+			TabName = SearchOptions.latin_only and TabName:gsub("[^0-9A-Za-z]", "") or TabName
+			TabName = SearchOptions.case_insensitive and TabName:lower() or TabName
 
-            local Match = TabName:match(Pattern)
-            if Match then
-                if (Match == TabName and not SearchOptions.find_only) or (TabName:find(Match) and SearchOptions.find_only) then
-                    insert(Tabs, Tab)
-                end
-            end
-        end
-    end
+			local Match = TabName:match(Pattern)
+			if Match then
+				if (Match == TabName and not SearchOptions.find_only) or (TabName:find(Match) and SearchOptions.find_only) then
+					insert(Tabs, Tab)
+				end
+			end
+		end
+	end
 
-    for _, Tab in next, Tabs do
-        insert(ModdedTabs, {
-            Instance = Tab,
-            Content = Elements:FindFirstChild(Tab.Name),
-            Rename = function(_, NewName)
-                Elements:FindFirstChild(Tab.Name).Name = NewName
-                Tab.Name = NewName
-                local Title = Tab:FindFirstChild("Title")
-                if Title then Title.Text = NewName end
-            end,
-            Delete = function() Tab:Destroy() end,
-            Hide = function() Tab.Visible = false end,
-            Show = function() Tab.Visible = true end,
-            IsVisible = function() return Tab.Visible end
-        })
-    end
+	for _, Tab in next, Tabs do
+		insert(ModdedTabs, {
+			Instance = Tab,
+			Content = Elements:FindFirstChild(Tab.Name),
+			Rename = function(_, NewName)
+				Elements:FindFirstChild(Tab.Name).Name = NewName
+				Tab.Name = NewName
+				local Title = Tab:FindFirstChild("Title")
+				if Title then Title.Text = NewName end
+			end,
+			Delete = function() Tab:Destroy() end,
+			Hide = function() Tab.Visible = false end,
+			Show = function() Tab.Visible = true end,
+			IsVisible = function() return Tab.Visible end
+		})
+	end
 
-    return ModdedTabs
+	return ModdedTabs
 end
 
 function RMod:GetButtons(SearchOptions) --! Returns a list of the buttons the script found, as well as what tab they're in.
@@ -88,212 +79,212 @@ function RMod:GetButtons(SearchOptions) --! Returns a list of the buttons the sc
     ^ title: The title of the button (REQUIRED)
     ]]
 
-    SearchOptions = SearchOptions or {}
-    assert(SearchOptions.title, "A title must be given to RMod:GetButton!")
+	SearchOptions = SearchOptions or {}
+	assert(SearchOptions.title, "A title must be given to RMod:GetButton!")
 
-    local Found = {}
+	local Found = {}
 
-    for _, Tab in next, Elements:GetChildren() do
-        if Tab == TemplateElements then continue end
-        for _, Element in next, Tab:GetChildren() do
-            if Element.Title.Text == SearchOptions.title then
-                insert(Found, Element)
-            end
-        end
-    end
+	for _, Tab in next, Elements:GetChildren() do
+		if Tab == TemplateElements then continue end
+		for _, Element in next, Tab:GetChildren() do
+			if Element.Title.Text == SearchOptions.title then
+				insert(Found, Element)
+			end
+		end
+	end
 
-    return Found
+	return Found
 end
 
 function RMod:GetColors()
-    local CLR = Rayfield.BackgroundColor3
-    local R, G, B = CLR.R * 255, CLR.G * 255, CLR.B * 255
+	local CLR = Rayfield.BackgroundColor3
+	local R, G, B = CLR.R * 255, CLR.G * 255, CLR.B * 255
 
-    return {
-        Stroke = Color3.fromRGB(R + 40, G + 30, B + 25),
-        Element = Color3.fromRGB(R + 15, G + 15, B + 15)
-    }
+	return {
+		Stroke = Color3.fromRGB(R + 40, G + 30, B + 25),
+		Element = Color3.fromRGB(R + 15, G + 15, B + 15)
+	}
 end
 
 function RMod:CreateParabutton(Desc, ParentTab, Icons)
     --[[
     * ParentTab: Instance | nil, This is to what tab this parabutton is parented to, For example: RMod:CreateParabutton("This is a paragraph with icons!", RMod:GetTabsByName("Tab Example")[1].Content)
     ]]
-    Icons = Icons or {}
+	Icons = Icons or {}
 
-    local Colors = RMod:GetColors()
+	local Colors = RMod:GetColors()
 
-    local Element = Instance_new("Frame")
-    Element.Size = UDim2.new(1, -10, 0, 35)
-    Element.AutomaticSize = Enum.AutomaticSize.Y
-    Element.BackgroundColor3 = Colors.Element
-    Element.ZIndex = 3
+	local Element = Instance_new("Frame")
+	Element.Size = UDim2.new(1, -10, 0, 35)
+	Element.AutomaticSize = Enum.AutomaticSize.Y
+	Element.BackgroundColor3 = Colors.Element
+	Element.ZIndex = 3
 
-    local Stroke = Instance_new("UIStroke", Element)
-    Stroke.Color = Colors.Stroke
-    Stroke.Enabled = true
+	local Stroke = Instance_new("UIStroke", Element)
+	Stroke.Color = Colors.Stroke
+	Stroke.Enabled = true
 
-    local Content = Instance_new("TextLabel", Element)
-    Content.Name = "Title"
-    Content.Size = UDim2.new(1, -30, 0, 0)
-    Content.Font = Enum.Font.GothamMedium
-    Content.BackgroundTransparency = 1
-    Content.TextXAlignment = Enum.TextXAlignment.Left
-    Content.TextYAlignment = Enum.TextYAlignment.Top
-    Content.Text = Desc or "No content provided."
-    Content.TextColor3 = Color3.fromRGB(240, 240, 240)
-    Content.AutomaticSize = Enum.AutomaticSize.Y
-    Content.TextSize = 14
-    Content.RichText = true
-    Content.TextWrapped = true
-    Content.ZIndex = 3
+	local Content = Instance_new("TextLabel", Element)
+	Content.Name = "Title"
+	Content.Size = UDim2.new(1, -30, 0, 0)
+	Content.Font = Enum.Font.GothamMedium
+	Content.BackgroundTransparency = 1
+	Content.TextXAlignment = Enum.TextXAlignment.Left
+	Content.TextYAlignment = Enum.TextYAlignment.Top
+	Content.Text = Desc or "No content provided."
+	Content.TextColor3 = Color3.fromRGB(240, 240, 240)
+	Content.AutomaticSize = Enum.AutomaticSize.Y
+	Content.TextSize = 14
+	Content.RichText = true
+	Content.TextWrapped = true
+	Content.ZIndex = 3
 
-    local Padding = Instance_new("UIPadding", Element)
-    Padding.PaddingLeft = UDim.new(0, 12)
-    Padding.PaddingTop = UDim.new(0, 6)
+	local Padding = Instance_new("UIPadding", Element)
+	Padding.PaddingLeft = UDim.new(0, 12)
+	Padding.PaddingTop = UDim.new(0, 6)
 
-    local Corner = Instance_new("UICorner", Element)
-    Corner.CornerRadius = UDim.new(0, 9)
+	local Corner = Instance_new("UICorner", Element)
+	Corner.CornerRadius = UDim.new(0, 9)
 
-    local IconsFrame = Instance_new("ScrollingFrame", Element)
-    IconsFrame.Size = UDim2.new(0, 20, 1, 4)
-    IconsFrame.Position = UDim2.new(1, -6, 0, -4)
-    IconsFrame.AnchorPoint = Vector2.new(1, 0)
-    IconsFrame.BackgroundTransparency = 1
-    IconsFrame.ScrollBarThickness = 0
-    IconsFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-    IconsFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    IconsFrame.Name = "Icons"
-    IconsFrame.ZIndex = 4
+	local IconsFrame = Instance_new("ScrollingFrame", Element)
+	IconsFrame.Size = UDim2.new(0, 20, 1, 4)
+	IconsFrame.Position = UDim2.new(1, -6, 0, -4)
+	IconsFrame.AnchorPoint = Vector2.new(1, 0)
+	IconsFrame.BackgroundTransparency = 1
+	IconsFrame.ScrollBarThickness = 0
+	IconsFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+	IconsFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	IconsFrame.Name = "Icons"
+	IconsFrame.ZIndex = 4
 
-    local Layout = Instance_new("UIListLayout", IconsFrame)
-    Layout.FillDirection = Enum.FillDirection.Vertical
-    Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-    Layout.Padding = UDim.new(0, 3)
+	local Layout = Instance_new("UIListLayout", IconsFrame)
+	Layout.FillDirection = Enum.FillDirection.Vertical
+	Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	Layout.Padding = UDim.new(0, 3)
 
-    for _, Icon in next, Icons do
-        -- Icon: {Icon = icon, OnClick => function() end}
-        local Icon1 = Instance_new("ImageButton", IconsFrame)
-        Icon1.Name = "Icon"
-        Icon1.BackgroundTransparency = 1
-        Icon1.Image = Icon.Icon
-        Icon1.Size = UDim2.fromOffset(20, 20)
-        Icon1.MouseButton1Click:Connect(
-            function()
-                (Icon.OnClick or function()
-                    print("No function attached to icon, printing this.")
-                end)(Element)
-            end
-        )
-        Icon1.ZIndex = 3
+	for _, Icon in next, Icons do
+		-- Icon: {Icon = icon, OnClick => function() end}
+		local Icon1 = Instance_new("ImageButton", IconsFrame)
+		Icon1.Name = "Icon"
+		Icon1.BackgroundTransparency = 1
+		Icon1.Image = Icon.Icon
+		Icon1.Size = UDim2.fromOffset(20, 20)
+		Icon1.MouseButton1Click:Connect(
+			function()
+				(Icon.OnClick or function()
+					print("No function attached to icon, printing this.")
+				end)(Element)
+			end
+		)
+		Icon1.ZIndex = 3
 
-        local Corner1 = Instance_new("UICorner", Icon1)
-        Corner1.Parent = Icon.Corner and Icon1 or nil
-        Corner1.CornerRadius = UDim.new(0, 4)
+		local Corner1 = Instance_new("UICorner", Icon1)
+		Corner1.Parent = Icon.Corner and Icon1 or nil
+		Corner1.CornerRadius = UDim.new(0, 4)
 
-        local Stroke1 = Instance_new("UIStroke")
-        Stroke1.Parent = Icon.Border and Icon1 or nil
-        Stroke1.Color = Color3.fromRGB(56, 56, 56)
-        Stroke1.Thickness = 1
-    end
+		local Stroke1 = Instance_new("UIStroke")
+		Stroke1.Parent = Icon.Border and Icon1 or nil
+		Stroke1.Color = Color3.fromRGB(56, 56, 56)
+		Stroke1.Thickness = 1
+	end
 
-    Element.Name = "ParaButton"
-    Element.Parent = ParentTab and Elements:FindFirstChild(ParentTab)
-    return Element
+	Element.Name = "ParaButton"
+	Element.Parent = ParentTab and Elements:FindFirstChild(ParentTab)
+	return Element
 end
 
 function RMod:CreateContent(TabName, Content)
-    local a = {
-	    ["Title"] = Instance_new("TextLabel"),
-	    ["UIStroke"] = Instance_new("UIStroke"),
-	    ["UICorner"] = Instance_new("UICorner"),
-	    ["UIPadding"] = Instance_new("UIPadding")
-    }
+	local a = {
+		["Title"] = Instance_new("TextLabel"),
+		["UIStroke"] = Instance_new("UIStroke"),
+		["UICorner"] = Instance_new("UICorner"),
+		["UIPadding"] = Instance_new("UIPadding")
+	}
 
-    a["Title"]["Position"] = UDim2.new(0, 15, 0, 0)
-    a["Title"]["Size"] = UDim2.new(1, -10, 0, 40)
-    a["Title"]["AutomaticSize"] = Enum.AutomaticSize.Y
-    a["Title"]["BackgroundColor3"] = Color3.fromRGB(60, 45, 35)
-    a["Title"]["BorderSizePixel"] = 0
-    a["Title"]["FontFace"] = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium, Enum.FontStyle.Normal)
-    a["Title"]["RichText"] = true
-    a["Title"]["Text"] = Content or "Title"
-    a["Title"]["TextColor3"] = Color3.fromRGB(255, 245, 230)
-    a["Title"]["TextSize"] = 14
-    a["Title"]["TextWrapped"] = true
-    a["Title"]["TextXAlignment"] = Enum.TextXAlignment.Left
-    a["Title"]["TextYAlignment"] = Enum.TextYAlignment.Top
-    a["Title"]["Name"] = "Title"
-    a["Title"]["Parent"] = Elements:FindFirstChild(TabName)
+	a["Title"]["Position"] = UDim2.new(0, 15, 0, 0)
+	a["Title"]["Size"] = UDim2.new(1, -10, 0, 40)
+	a["Title"]["AutomaticSize"] = Enum.AutomaticSize.Y
+	a["Title"]["BackgroundColor3"] = Color3.fromRGB(60, 45, 35)
+	a["Title"]["BorderSizePixel"] = 0
+	a["Title"]["FontFace"] = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium, Enum.FontStyle.Normal)
+	a["Title"]["RichText"] = true
+	a["Title"]["Text"] = Content or "Title"
+	a["Title"]["TextColor3"] = Color3.fromRGB(255, 245, 230)
+	a["Title"]["TextSize"] = 14
+	a["Title"]["TextWrapped"] = true
+	a["Title"]["TextXAlignment"] = Enum.TextXAlignment.Left
+	a["Title"]["TextYAlignment"] = Enum.TextYAlignment.Top
+	a["Title"]["Name"] = "Title"
+	a["Title"]["Parent"] = Elements:FindFirstChild(TabName)
 
-    a["UIStroke"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
-    a["UIStroke"]["Color"] = RMod:GetColors().Stroke
-    a["UIStroke"]["Name"] = "UIStroke"
-    a["UIStroke"]["Parent"] = a["Title"]
+	a["UIStroke"]["ApplyStrokeMode"] = Enum.ApplyStrokeMode.Border
+	a["UIStroke"]["Color"] = RMod:GetColors().Stroke
+	a["UIStroke"]["Name"] = "UIStroke"
+	a["UIStroke"]["Parent"] = a["Title"]
 
-    a["UICorner"]["CornerRadius"] = UDim.new(0, 9)
-    a["UICorner"]["Name"] = "UICorner"
-    a["UICorner"]["Parent"] = a["Title"]
+	a["UICorner"]["CornerRadius"] = UDim.new(0, 9)
+	a["UICorner"]["Name"] = "UICorner"
+	a["UICorner"]["Parent"] = a["Title"]
 
-    a["UIPadding"]["Name"] = "UIPadding"
-    a["UIPadding"]["Parent"] = a["Title"]
-    a["UIPadding"]["PaddingLeft"] = UDim.new(0, 15)
-    a["UIPadding"]["PaddingRight"] = UDim.new(0, 15)
-    a["UIPadding"]["PaddingTop"] = UDim.new(0, 2)
+	a["UIPadding"]["Name"] = "UIPadding"
+	a["UIPadding"]["Parent"] = a["Title"]
+	a["UIPadding"]["PaddingLeft"] = UDim.new(0, 15)
+	a["UIPadding"]["PaddingRight"] = UDim.new(0, 15)
+	a["UIPadding"]["PaddingTop"] = UDim.new(0, 2)
 
-    return a["Title"]
+	return a["Title"]
 end
 
 function RMod:CreateFrame(TabName, Title)
-    local a = {
-	    ["Frame"] = Instance_new("Frame"),
-	    ["UICorner"] = Instance_new("UICorner"),
-	    ["Title"] = Instance_new("TextLabel"),
-	    ["UIStroke"] = Instance_new("UIStroke")
-    }
+	local a = {
+		["Frame"] = Instance_new("Frame"),
+		["UICorner"] = Instance_new("UICorner"),
+		["Title"] = Instance_new("TextLabel"),
+		["UIStroke"] = Instance_new("UIStroke")
+	}
 
-    a["Frame"]["Size"] = UDim2.new(1, -10, 0, 200)
-    a["Frame"]["AutomaticSize"] = Enum.AutomaticSize.Y
-    a["Frame"]["BackgroundColor3"] = Color3.fromRGB(60, 45, 35)
-    a["Frame"]["BorderColor3"] = Color3.fromRGB(27, 42, 53)
-    a["Frame"]["BorderSizePixel"] = 0
-    a["Frame"]["Name"] = "Frame"
-    a["Frame"]["Parent"] = Elements:FindFirstChild(TabName)
+	a["Frame"]["Size"] = UDim2.new(1, -10, 0, 200)
+	a["Frame"]["AutomaticSize"] = Enum.AutomaticSize.Y
+	a["Frame"]["BackgroundColor3"] = Color3.fromRGB(60, 45, 35)
+	a["Frame"]["BorderColor3"] = Color3.fromRGB(27, 42, 53)
+	a["Frame"]["BorderSizePixel"] = 0
+	a["Frame"]["Name"] = "Frame"
+	a["Frame"]["Parent"] = Elements:FindFirstChild(TabName)
 
-    a["UICorner"]["CornerRadius"] = UDim.new(0, 9)
-    a["UICorner"]["Name"] = "UICorner"
-    a["UICorner"]["Parent"] = a["Frame"]
+	a["UICorner"]["CornerRadius"] = UDim.new(0, 9)
+	a["UICorner"]["Name"] = "UICorner"
+	a["UICorner"]["Parent"] = a["Frame"]
 
-    a["Title"]["Position"] = UDim2.new(0, 15, 0, 15)
-    a["Title"]["Size"] = UDim2.new(1, -30, 0, 15)
-    a["Title"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-    a["Title"]["BackgroundTransparency"] = 1
-    a["Title"]["BorderColor3"] = Color3.fromRGB(27, 42, 53)
-    a["Title"]["BorderSizePixel"] = 0
-    a["Title"]["FontFace"] = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium, Enum.FontStyle.Normal)
-    a["Title"]["RichText"] = true
-    a["Title"]["Text"] = Title or ""
-    a["Title"]["TextColor3"] = Color3.fromRGB(255, 245, 230)
-    a["Title"]["TextSize"] = 14
-    a["Title"]["TextWrapped"] = true
-    a["Title"]["AutomaticSize"] = Enum.AutomaticSize.Y
-    a["Title"]["TextXAlignment"] = Enum.TextXAlignment.Left
-    a["Title"]["Name"] = "Title"
-    a["Title"]["Parent"] = a["Frame"]
+	a["Title"]["Position"] = UDim2.new(0, 15, 0, 15)
+	a["Title"]["Size"] = UDim2.new(1, -30, 0, 15)
+	a["Title"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+	a["Title"]["BackgroundTransparency"] = 1
+	a["Title"]["BorderColor3"] = Color3.fromRGB(27, 42, 53)
+	a["Title"]["BorderSizePixel"] = 0
+	a["Title"]["FontFace"] = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium, Enum.FontStyle.Normal)
+	a["Title"]["RichText"] = true
+	a["Title"]["Text"] = Title or ""
+	a["Title"]["TextColor3"] = Color3.fromRGB(255, 245, 230)
+	a["Title"]["TextSize"] = 14
+	a["Title"]["TextWrapped"] = true
+	a["Title"]["AutomaticSize"] = Enum.AutomaticSize.Y
+	a["Title"]["TextXAlignment"] = Enum.TextXAlignment.Left
+	a["Title"]["Name"] = "Title"
+	a["Title"]["Parent"] = a["Frame"]
 
-    a["UIStroke"]["Color"] = Color3.fromRGB(85, 60, 45)
-    a["UIStroke"]["Name"] = "UIStroke"
-    a["UIStroke"]["Parent"] = a["Frame"]
+	a["UIStroke"]["Color"] = Color3.fromRGB(85, 60, 45)
+	a["UIStroke"]["Name"] = "UIStroke"
+	a["UIStroke"]["Parent"] = a["Frame"]
 
-    return a["Frame"]
+	return a["Frame"]
 end
 
 function RMod:CreateSpace(Tab)
-    local Frame = Instance_new("Frame", Elements:FindFirstChild(Tab))
-    Frame.Size = UDim2.fromOffset(0, 30)
-    Frame.Name = "Space"
+	local Frame = Instance_new("Frame", Elements:FindFirstChild(Tab))
+	Frame.Size = UDim2.fromOffset(0, 30)
+	Frame.Name = "Space"
 
-    return Frame
+	return Frame
 end
 
 return RMod
