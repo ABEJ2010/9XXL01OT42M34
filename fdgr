@@ -1,44 +1,71 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local Humanoid = Character:WaitForChild("Humanoid")
 
-local StaminaModule
-pcall(function()
-	StaminaModule = require(LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("MainGui"):WaitForChild("Client"):WaitForChild("Modules"):WaitForChild("Movement"))
-end)
+local function SetupCharacter(Character)
+	local Humanoid = Character:WaitForChild("Humanoid")
 
-local function SetProperty(property, value)
-	if not Character then return end
+	local StaminaModule
+	pcall(function()
+		StaminaModule = require(LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("MainGui"):WaitForChild("Client"):WaitForChild("Modules"):WaitForChild("Movement"))
+	end)
 
-	if property == "MaxStamina" then
-		Character:SetAttribute("MaxStamina", value)
+	local function SetProperty(property, value)
+		if not Character then return end
 
-	elseif property == "Stamina" then
-		if StaminaModule then
-			StaminaModule["Stamina"] = value
+		if property == "MaxStamina" then
+			Character:SetAttribute("MaxStamina", value)
+
+		elseif property == "Stamina" then
+			if StaminaModule then
+				StaminaModule["Stamina"] = value
+			end
+
+		elseif property == "Fatigue" then
+			Character:SetAttribute("Fatigue", value)
+
+		elseif property == "WalkSpeed" then
+			Humanoid.WalkSpeed = value
+			Character:SetAttribute("WalkSpeed", value)
+
+		elseif property == "SprintSpeed" then
+			Character:SetAttribute("SprintSpeed", value)
 		end
-
-	elseif property == "Fatigue" then
-		Character:SetAttribute("Fatigue", value)
-
-	elseif property == "WalkSpeed" then
-		Humanoid.WalkSpeed = value
-		Character:SetAttribute("WalkSpeed", value)
-
-	elseif property == "SprintSpeed" then
-		Character:SetAttribute("SprintSpeed", value)
 	end
+
+	local function ApplySettings()
+		if Character then
+			SetProperty("MaxStamina", 1000)
+			SetProperty("Stamina", 1000)
+			SetProperty("Fatigue", false)
+			SetProperty("WalkSpeed", 15)
+			SetProperty("SprintSpeed", 40)
+		end
+	end
+
+	-- Aplicar configuración inicial
+	ApplySettings()
+
+	-- Proteger los valores para que nadie los cambie
+	local lockedWalkSpeed = 15
+	local lockedSprintSpeed = 40
+
+	Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+		if Humanoid.WalkSpeed ~= lockedWalkSpeed then
+			Humanoid.WalkSpeed = lockedWalkSpeed
+		end
+	end)
+
+	Character.AttributeChanged:Connect(function(attr)
+		if attr == "SprintSpeed" and Character:GetAttribute("SprintSpeed") ~= lockedSprintSpeed then
+			Character:SetAttribute("SprintSpeed", lockedSprintSpeed)
+		end
+	end)
 end
 
-local function ApplySettings()
-	if Character then
-		SetProperty("MaxStamina", 1000)
-		SetProperty("Stamina", 1000)
-		SetProperty("Fatigue", false)
-		SetProperty("WalkSpeed", 15)     
-		SetProperty("SprintSpeed", 40)   
-	end
-end
+-- Detectar cuando tu personaje aparece o reaparece
+LocalPlayer.CharacterAdded:Connect(SetupCharacter)
 
-ApplySettings()
+-- Si el personaje ya existe al inicio
+if LocalPlayer.Character then
+	SetupCharacter(LocalPlayer.Character)
+end
