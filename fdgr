@@ -1,0 +1,44 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
+
+local StaminaModule
+pcall(function()
+	StaminaModule = require(LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("MainGui"):WaitForChild("Client"):WaitForChild("Modules"):WaitForChild("Movement"))
+end)
+
+local function SetProperty(property, value)
+	if not Character then return end
+
+	if property == "MaxStamina" then
+		Character:SetAttribute("MaxStamina", value)
+
+	elseif property == "Stamina" then
+		if StaminaModule then
+			StaminaModule["Stamina"] = value
+		end
+
+	elseif property == "Fatigue" then
+		Character:SetAttribute("Fatigue", value)
+
+	elseif property == "WalkSpeed" then
+		Humanoid.WalkSpeed = value
+		Character:SetAttribute("WalkSpeed", value)
+
+	elseif property == "SprintSpeed" then
+		Character:SetAttribute("SprintSpeed", value)
+	end
+end
+
+local function ApplySettings()
+	if Character then
+		SetProperty("MaxStamina", 1000)
+		SetProperty("Stamina", 1000)
+		SetProperty("Fatigue", false)
+		SetProperty("WalkSpeed", 15)     
+		SetProperty("SprintSpeed", 40)   
+	end
+end
+
+ApplySettings()
