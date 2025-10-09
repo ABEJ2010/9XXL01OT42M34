@@ -1336,14 +1336,14 @@ end; })
 
 
 function StudsIntoPower(studs)
-return (studs * 6)
+return (studs * 10)
 end
 Tab_7:CreateSection("Hitbox Extender")
 Tab_7:CreateToggle({Name = "Extend Hitbox"; CurrentValue = false; Callback = function(Value)
 if not HavePremium then Notify("Error!", "You need premium to unlock this feature!", 4, false) setclipboard(tostring("https://discord.gg/7u5GRNw3xn")) return end
 ExtendHitbox = Value
 if ExtendHitbox == true then
-local distance = 9
+local distance = 15
 repeat game:GetService("RunService").Heartbeat:Wait()
 local vel, movel = nil, 0.1
 while not (game:GetService("Players").LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character.Parent and game:GetService("Players").LocalPlayer.Character.HumanoidRootPart and game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Parent) do
