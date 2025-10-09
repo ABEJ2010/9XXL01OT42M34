@@ -1251,8 +1251,8 @@ end; })
 
 
 
--- Premium forzado: todas las comprobaciones de compra fueron eliminadas
-local HavePremium = true -- <-- Premium activado por defecto
+-- Premium forzado activado permanentemente
+local HavePremium = true
 
 local Tab_7 = Window:CreateTab("Premium",0)
 Tab_7:CreateParagraph({
@@ -1261,28 +1261,9 @@ Tab_7:CreateParagraph({
 })
 
 Tab_7:CreateSection("")
-Tab_7:CreateLabel("Premium features are currently: "..(HavePremium and "ENABLED" or "DISABLED"))
+Tab_7:CreateLabel("Premium features have been unlocked!")
 Tab_7:CreateSection("")
-
--- Botones de desarrollador para activar/desactivar premium en runtime
-Tab_7:CreateButton({
-    Name = "Enable Premium (dev)",
-    Callback = function()
-        HavePremium = true
-        Notify("Success","Premium enabled", 2)
-    end;
-})
-
-Tab_7:CreateButton({
-    Name = "Disable Premium (dev)",
-    Callback = function()
-        HavePremium = false
-        Notify("Notice","Premium disabled", 2)
-    end;
-})
-
-Tab_7:CreateLabel("Premium is active without a gamepass. Use the dev buttons to toggle.")
-
+Tab_7:CreateLabel("Enjoy all premium content without restrictions.")
 
 Tab_7:CreateSection("")
 
